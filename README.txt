@@ -26,7 +26,7 @@ test.solution -- the sample solution on the test data
 Overview
 ========
 
-The model is completely described in ```description.odt``` and this should be
+The model is completely described in ```description.tex``` and this should be
 translated in the Probabilistic Programming Language of your
 choosing. The unlabeled data in ```test.blind``` (and optionally the labeled
 data in ```training.data```) comprises the observations to the model. The
@@ -39,11 +39,11 @@ script ```test.data```. One can also compare the results versus the
 baseline in ```test.solution```.
 
 The files ```generate.py``` and ```solve.py``` have only been provided
-for convenience they shouldn't normally be used. However, if you want to
-check the performance of your model on more than just the provided data
-you may generate more as needed. The sample solver is based loosely on
-the published greedy algorithm, and may be used as a competitive
-baseline.
+for convenience. These files shouldn't normally be used. However, if you
+want to check the performance of your model on more than just the
+provided data you may generate more as needed. The sample solver is
+based loosely on the published greedy algorithm, and may be used as a
+competitive baseline.
 
 Authors
 =======

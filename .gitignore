@@ -2,3 +2,10 @@
 *.bbl
 *.bib
 *.pyc
+*.aux
+*.blg
+*.out
+*.fdb_latexmk
+*.fls
+*.log
+

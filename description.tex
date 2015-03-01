@@ -93,7 +93,7 @@ $T$ over the surface of the earth, then
   e^i_m & \sim \text{Exponential}(\ \cdot\ ;\ \lambda_m, location=2)
 \end{align*}
 
-\subsection{True Arrivals}
+\subsection{True Detections}
 
 The seismic energy from an event travels radially outwards in distinct
 phases, each of which may or may not be detected by a station depending
@@ -103,14 +103,14 @@ different layers of the earth, the so called {\em body} waves or along
 the surface, refer to \citet{iaspei2011} for a full list. In this work we only
 consider the first arriving phase, the {\em P} phase.
 
-We define a true arrival $\Lambda^{ik}$ as the moment of first arrival
+We define a true detection $\Lambda^{ik}$ as the moment of first arrival
 of the energy from an event $i$ at a seismic station $k$. Various signal
 processing algorithms are applied on the raw waveforms to detect an
 arrival, and then station processing algorithms collect various
 attributes of the
-arrival such as time, azimuth, slowness, and amplitude referenced by
+detection such as time, azimuth, slowness, and amplitude referenced by
 $\Lambda^{ik}_t$, $\Lambda^{ik}_z$, $\Lambda^{ik}_s$, and
-$\Lambda^{ik}_a$ respectively. Time is quite obviously the arrival time
+$\Lambda^{ik}_a$ respectively. Time is quite obviously the detection time
 of the energy, azimuth refers to the geographical direction of the
 incoming seismic waves, and amplitude is the height of the initial
 peak. Slowness is a more peculiar term, it refers to the inverse of the
@@ -139,17 +139,17 @@ function,
 \[\text{logistic}
 (\mu_{d0}^k + \mu_{d1}^k e^i_m + \mu_{d2}^k \Delta_{ik}) \ .\]
 
-\subsubsection{Arrival Time}
+\subsubsection{Detection Time}
 
 The theoretical travel time of a seismic wave at a distance of $\delta$ is
 given by the travel time function,
 \[ I_T(\delta) = -.023 * \delta^2 + 10.7 * \delta\, + 5.\]
 
-The arrival time is a Laplacian centered near the theoretical arrival time,
+The detection time is a Laplacian centered near the theoretical detection time,
 \[ \Lambda_t^{ik} \sim \text{Laplacian}(\ \cdot \ , e^i_t + I_T(\Delta_{ik}) +
 \mu_t^k \  , \ \theta_t^k) . \]
 
-\subsection{Arrival Azimuth}
+\subsection{Detection Azimuth}
 
 The azimuth of location $b=(lon_2, lat_2)$ as observed from location
 $a=(lon_1, lat_1)$ is given by the function $G_z(a, b) \in [0,
@@ -176,13 +176,13 @@ counter-clockwise, $\psi \in [0, -180]$.
 \psi'(z_1, z_2) &= (z_2 - z_1) + 360\ \text{mod}\ 360.
 \end{align*}
 
-The difference of the arrival azimuth from the theoretical
+The difference of the detection azimuth from the theoretical
 station-to-event azimuth is distributed as a Laplacian,
 
 \[\psi(G_z(s^k_l, e^i_l), \Lambda_z^{ik}) \sim \text{Laplacian}(\ \cdot
 \ ,\  \mu_z^k, \ \theta_z^k \ ) . \] 
 
-\subsection{Arrival Slowness}
+\subsection{Detection Slowness}
 The slowness at distance $\delta$ given by $I_S(\delta)$ is simply the
 derivative of the travel time. In other words, slowness measures the
 the time that the seismic wave takes to travel between two points very
@@ -191,34 +191,34 @@ azimuth. The theoretical slowness is given by the formula,
 \[ I_S(\delta) = -.046 * \delta + 10.7\, .\]
 Note that $I_S$ is always positive since $\delta \in [0, 180]$.
 
-The arrival slowness is a Laplacian centered near the theoretical
+The detection slowness is a Laplacian centered near the theoretical
 slowness,
 
 \[ \Lambda_s^{ik} \sim \text{Laplacian}(\ \cdot \ , I_S(\Delta_{ik}) +
 \mu_s^k \  , \ \theta_s^k) . \]
 
-\subsection{Arrival Amplitude}
+\subsection{Detection Amplitude}
 
-The log of the arrival amplitude has a Gaussian distribution with a mean
+The log of the detection amplitude has a Gaussian distribution with a mean
 determined by the event magnitude and travel time.
 
 \[\log(\Lambda_a^{ik}) \sim \text{Gaussian}(\ \cdot \ ,\ \mu^k_{a0} 
 + \mu^k_{a1} e^i_m + \mu^k_{a2} I_T(\Delta_{ik})\  ,\ \sigma_a^k \ ) . \]
 
 
-\subsection{False Arrivals}
+\subsection{False Detections}
 
 Each station $k$ has its own time-homogenous Poisson process generating
-false arrivals with rate $\lambda^k_f$. In other words, if $\xi^k$ is
-the set of false arrivals in a time interval $T$,
+false detections with rate $\lambda^k_f$. In other words, if $\xi^k$ is
+the set of false detections in a time interval $T$,
 \begin{align*}
 |\xi^k| & \sim \text{Poisson}(\ \cdot \ , \ \lambda^k_f T),
-\intertext{and the arrival time $\xi^k_t$ is uniformly distributed,}
+\intertext{and the detection time $\xi^k_t$ is uniformly distributed,}
 \xi^k_t & \sim \text{Uniform}(\ \cdot \ , \ 0, \ T) .
 \intertext{The azimuth and slowness are also uniformly distributed
   between their possible values, as follows:}
 \xi^k_z & \sim \text{Uniform}(\ \cdot \ , \ 0, \ 360),  \\
-\xi^k_s & \sim \text{Uniform}(\ \cdot \ , \ I_S(0), \ I_S(180)) .
+\xi^k_s & \sim \text{Uniform}(\ \cdot \ , \ I_S(180), \ I_S(0)) .
 \intertext{However, the log-amplitude is distributed as a Gaussian,}
 \log{\xi^k_a} & \sim \text{Gaussian}(\ \cdot \ , \ \mu^k_f, \sigma^k_f) .
 \end{align*}
@@ -230,20 +230,58 @@ T & = 3600 \, s \\
 R & = 6371 \, km \\
 \lambda_e & \sim \text{Gamma}(\ \cdot \ , \ 6.0, \frac{1}{4 \pi R^2 T}) \\
 \lambda_m & = \log(10) \\
-\mu^k_{d0} & \sim \text{Gaussian}(\ \cdot \ , \ -16.6,\ 4.9) \\
-\mu^k_{d1} & \sim \text{Gaussian}(\ \cdot \ , \ 3.9,\ 0.89) \\
-\mu^k_{d2} & \sim \text{Gaussian}(\ \cdot \ , \ -0.052,\ 0.018) \\
+\left[ 
+  \begin{array}{l}
+    \mu^k_{d0} \\
+    \mu^k_{d1} \\
+    \mu^k_{d2} 
+  \end{array} \right] & = \text{MVarGaussian} \left( \ \cdot \ ; \
+\left[
+  \begin{array}{l}
+    -10.4 \\
+    3.26 \\
+    -.0499
+  \end{array}
+\right]
+ , 
+\left[
+  \begin{array}{lll}
+    13.43 & -2.36 & -.0122 \\
+    -2.36 & .452 & .000112 \\
+    -.0122 & .000112 & .000125 \\
+  \end{array}
+\right]
+\ \right) \\
 \mu_t^k & = 0 \\
-\theta_t^k & \sim \text{InvGamma}(\ \cdot \ , \ 96.9, \ 102.0) \\
+\theta_t^k & \sim \text{InvGamma}(\ \cdot \ , \ 120, \ 118) \\
 \mu_z^k & = 0 \\
-\theta_z^k & \sim \text{InvGamma}(\ \cdot \ , \ 7.0, \ 80.0) \\
+\theta_z^k & \sim \text{InvGamma}(\ \cdot \ , \ 5.2, \ 44) \\
 \mu_s^k & = 0 \\
-\theta_s^k & \sim \text{InvGamma}(\ \cdot \ , \ 7.0, \ 9.0) \\
-\mu^k_{a0} & \sim \text{Gaussian}(\ \cdot \ , \  -7.3, \ 1.1) \\
-\mu^k_{a1} & \sim \text{Gaussian}(\ \cdot \ , \  2, \ 0.21) \\
-\mu^k_{a2} & \sim \text{Gaussian}(\ \cdot \ , \  -0.002, \ 0.00055) \\
+\theta_s^k & \sim \text{InvGamma}(\ \cdot \ , \ 6.7, \ 7.5) \\
+\left[ 
+  \begin{array}{l}
+    \mu^k_{a0} \\
+    \mu^k_{a1} \\
+    \mu^k_{a2} 
+  \end{array} \right] & = \text{MVarGaussian} \left( \ \cdot \ ; \
+\left[
+  \begin{array}{l}
+    -7.3 \\
+    2.03 \\
+    -.00196
+  \end{array}
+\right]
+ , 
+\left[
+  \begin{array}{lll}
+    1.23 & -.227 & -.000175 \\
+    -.227 & .0461 & .0000245 \\
+    -.000175 & .0000245 & .000000302 \\
+  \end{array}
+\right]
+\ \right) \\
 (\sigma^k_a)^2 & \sim \text{InvGamma}(\ \cdot \ , \  21.1, \ 12.6) \\
-\lambda^k_f & \sim \text{Gamma}(\ \cdot \ , \  0.782, \ 0.0018) \\
+\lambda^k_f & \sim \text{Gamma}(\ \cdot \ , \  2.1, \ 0.0013) \\
 \mu^k_f & \sim \text{Gaussian}(\ \cdot \ , \  -0.6, \ 0.6) \\
 (\sigma^k_f)^2 & \sim \text{InvGamma}(\ \cdot \ , \  10.34, \ 9.49) \\
 \end{align*}
@@ -379,6 +417,17 @@ has probability density
  \, x^{-\alpha-1} e^{-\frac{\theta}{x}} \, , \] defined over all $x \in
  \mathbb{R}_{>0}$.
 
+\subsection{Multi-variate Gaussian}
+
+The Muti-variate Gaussian distribution with mean vector
+$\mu \in \mathbb{R}^k$, and
+covariance matrix $\Sigma  \in \mathbb{R}^{k \times k}$ has probability density
+
+\[\text{MVarGaussian}(x; \mu, \Sigma) = \frac{1}{\sqrt{(2 \pi)^k | \Sigma
+    |}}
+e^{\left( -\frac{1}{2} (x - \mu)^T \Sigma^{-1} (x - \mu) \right)}
+\]
+defined over all $x \in \mathbb{R}^k$.
 \end{appendices}
 
 \bibliographystyle{chicagoa}
