@@ -5,9 +5,9 @@ seismic events and detections.
 
 The data for this problem was generated using the following command:
 
-./generate.py 10000 physics.data training.data test.data test.blind
+./generate.py 10000 data/physics.data data/training.data data/test.data data/test.blind
 
-Author: Nimar Arora (feel free to modify, use, or resdistribute)
+Author: Nimar Arora (feel free to modify, use, or redistribute)
 """
 from __future__ import print_function, division
 
@@ -16,7 +16,7 @@ from __future__ import print_function, division
 import sys
 
 from scipy.stats import gamma, norm, invgamma, poisson, uniform, expon,\
-     bernoulli, laplace
+     bernoulli, laplace, cauchy
 from numpy import array, sqrt, log, exp, pi, arcsin, degrees
 from collections import namedtuple
 
@@ -74,14 +74,20 @@ def sample_physics():
   lambda_e = gamma.rvs(6.0, loc=0, scale = 1/(4 * pi * R**2 * T))
   
   # event magnitude
-  lambda_m = log(10)
-  
+  mu_m = 3.0
+  theta_m = 4.0
+
+  # Note: the correct choice of theta_m should be 0.75.
+  # We have chosen a large value here to force larger events and hence
+  # allow for easier detection. If the full set of 180 stations are ever used
+  # then we can correct theta_m.
+
   # station-specific attributes
   
   mu_d0, mu_d1, mu_d2 = [], [], []
   mu_t, theta_t, mu_z, theta_z, mu_s, theta_s = [], [], [], [], [], []
   mu_a0, mu_a1, mu_a2, sigma_a = [], [], [], []
-  lambda_f, mu_f, sigma_f = [], [], []
+  lambda_f, mu_f, theta_f = [], [], []
   
   for sta in STATIONS:
     
@@ -119,17 +125,19 @@ def sample_physics():
     
     # false arrivals
     lambda_f.append(gamma.rvs(2.1, 0, 0.0013))
-    mu_f.append(norm.rvs(-0.6, 0.6))
-    sigma_f.append(sqrt(invgamma.rvs(10.34, 0, 9.49)))
+    mu_f.append(norm.rvs(-0.68, 0.68))
+    theta_f.append(invgamma.rvs(23.5, 0, 12.45))
     
-  return Physics(T, R, lambda_e, lambda_m, mu_d0, mu_d1, mu_d2,
+  return Physics(T, R, lambda_e, mu_m, theta_m, mu_d0, mu_d1, mu_d2,
                  mu_t, theta_t, mu_z, theta_z, mu_s, theta_s,
                  mu_a0, mu_a1, mu_a2, sigma_a,
-                 lambda_f, mu_f, sigma_f)
+                 lambda_f, mu_f, theta_f)
 
 def sample_episodes(numepisodes, physics):
 
   episodes = []
+
+  total_events, num_reasonable_events = 0, 0
   
   for epinum in xrange(numepisodes):
     
@@ -144,11 +152,22 @@ def sample_episodes(numepisodes, physics):
     
     for evnum in xrange(numevents):
       
+      # longitude is uniform from -180 to 180
       evlon = uniform.rvs(-180, 360)
+      # sin(latitude) is uniform from -1 to 1
       evlat = degrees(arcsin(uniform.rvs(-1, 2)))
-      evmag = expon.rvs(physics.lambda_m, 2.0)
+      # magnitude has an exponential distribution as per Gutenberg-Richter law
+      while True:
+        evmag = expon.rvs(physics.mu_m, physics.theta_m)
+        # magnitude saturates at 6
+        if evmag > 6.0:
+          continue
+        else:
+          break
+        
+      # time is uniform
       evtime = uniform.rvs(0, physics.T)
-
+      
       event = Event(evlon, evlat, evmag, evtime)
       
       events.append(event)
@@ -156,7 +175,7 @@ def sample_episodes(numepisodes, physics):
       truedets = []
 
       #print ("event mag %f" % event.mag)
-      
+
       # for each event generate its set of true detections
       for stanum, station in enumerate(STATIONS):
 
@@ -173,26 +192,35 @@ def sample_episodes(numepisodes, physics):
         
         # is detected ?
         if bernoulli.rvs(detprob):
+
           dettime = laplace.rvs(event.time + compute_travel_time(dist)
                                 + physics.mu_t[stanum],
                                 physics.theta_t[stanum])
 
-          degdiff = laplace.rvs(physics.mu_z[stanum], physics.theta_z[stanum])
-          detaz = (sta_to_ev_az + degdiff + 360) % 360
+          # Note: the episode only has detections within the first T
+          # seconds. Late arriving detections will not be available.
+          if dettime < physics.T:
+            degdiff = laplace.rvs(physics.mu_z[stanum], physics.theta_z[stanum])
+            detaz = (sta_to_ev_az + degdiff + 360) % 360
+            
+            detslow = laplace.rvs(compute_slowness(dist) + physics.mu_s[stanum],
+                                  physics.theta_s[stanum])
 
-          detslow = laplace.rvs(compute_slowness(dist) + physics.mu_s[stanum],
-                                physics.theta_s[stanum])
+            detamp = exp(norm.rvs(physics.mu_a0[stanum]
+                                  + physics.mu_a1[stanum] * event.mag
+                                  + physics.mu_a2[stanum] * dist,
+                                  physics.sigma_a[stanum]))
 
-          detamp = exp(norm.rvs(physics.mu_a0[stanum]
-                                + physics.mu_a1[stanum] * event.mag
-                                + physics.mu_a2[stanum] * dist,
-                                physics.sigma_a[stanum]))
-
-          truedets.append(len(detections))
-          detections.append(Detection(stanum, dettime, detaz, detslow, detamp))
+            truedets.append(len(detections))
+            detections.append(Detection(stanum, dettime, detaz, detslow,
+                                        detamp))
 
       assocs.append(truedets)
 
+      total_events += 1
+      
+      if len(truedets) >= 2:
+        num_reasonable_events += 1
 
     # now generate the false detections
     for stanum in xrange(len(STATIONS)):
@@ -203,12 +231,26 @@ def sample_episodes(numepisodes, physics):
         detaz = uniform.rvs(0, 360)
         detslow = uniform.rvs(compute_slowness(180),
                               compute_slowness(0) - compute_slowness(180))
-        detamp = exp(norm.rvs(physics.mu_f[stanum], physics.sigma_f[stanum]))
+
+        while True:
+          # resample if the detection amplitude is infinite
+          detamp = exp(cauchy.rvs(physics.mu_f[stanum],
+                                  physics.theta_f[stanum]))
+
+          if np.isinf(detamp):
+            continue
+          
+          else:
+            break
+          
         
         detections.append(Detection(stanum, dettime, detaz, detslow, detamp))
-    
+        
     episodes.append(Episode(events, detections, assocs))
     
+  print ("{:d} events generated".format(total_events))
+  print ("{:.1f} % events have at least two detections"
+         .format(100 * num_reasonable_events / total_events))
   return episodes
 
 def strip_events(episodes):

@@ -2,10 +2,10 @@
 """
 Utility functions.
 
-Author: Nimar Arora (feel free to modify, use, or resdistribute)
+Author: Nimar Arora (feel free to modify, use, or redistribute)
 
 Two of the geophysical functions, compute_distance and invert_dist_azimuth
-were modified from a version copied from:
+were modified from a version copied from geopy:
 
 http://pydoc.net/Python/geopy/0.94.1/geopy.distance/
 
@@ -45,10 +45,10 @@ from collections import namedtuple
 # the Physics object represents the underlying physics of the problem which
 # is generated once for all episodes
 Physics = namedtuple("Physics", [
-  "T", "R", "lambda_e", "lambda_m", "mu_d0", "mu_d1", "mu_d2",
+  "T", "R", "lambda_e", "mu_m", "theta_m", "mu_d0", "mu_d1", "mu_d2",
   "mu_t", "theta_t", "mu_z", "theta_z", "mu_s", "theta_s",
   "mu_a0", "mu_a1", "mu_a2", "sigma_a",
-  "lambda_f", "mu_f", "sigma_f",
+  "lambda_f", "mu_f", "theta_f",
   ])
 
 Station = namedtuple("Station", ["name", "lon", "lat"])
@@ -154,7 +154,12 @@ def write_episodes(episodes, filename):
   print("Episodes:", file=fp, end="\n\n")
 
   for episode in episodes:
+    
+    write_single_episode(episode, fp)
 
+  fp.close()
+
+def write_single_episode(episode, fp):
     print("Events:", file=fp)
 
     for event in episode.events:
@@ -177,13 +182,16 @@ def write_episodes(episodes, filename):
     # blank line at the end of each episode
     print(file=fp)
 
-  fp.close()
-
-def read_episodes(filename, maxepisodes=None):
+def read_episodes(filename):
   """
   Read episodes from a file.
+  """
+  return [epi for epi in iterate_episodes(filename)]
 
-  If max is specified then stop after max episodes are read.
+def iterate_episodes(filename):
+  """
+  Iterating over the episodes is more memory efficient if you plan to
+  discard them as soon as you have read them.
   """
   fp = open(filename)
   
@@ -193,8 +201,6 @@ def read_episodes(filename, maxepisodes=None):
   
   if line1 != "Episodes:" or line2 != "" or line3 != "Events:":
     raise ValueError("Corrupted episodes files")
-  
-  episodes = []
   
   while True:
     
@@ -238,11 +244,7 @@ def read_episodes(filename, maxepisodes=None):
       assocs[evnum].append(detnum)
       
     # now we have a complete episode
-    episodes.append(Episode(events, detections, assocs))
-
-    # stop now if we have exceed maxepisodes
-    if maxepisodes is not None and len(episodes) >= maxepisodes:
-      return episodes
+    yield Episode(events, detections, assocs)
     
     # check if we have more episodes to read
     line = fp.readline().strip()
@@ -252,9 +254,7 @@ def read_episodes(filename, maxepisodes=None):
     
     else:
       break
-    
-  return episodes
-
+  
 def compute_distance(loc1, loc2):
   """
   Compute the great circle distance between two point on the earth's surface
@@ -262,7 +262,7 @@ def compute_distance(loc1, loc2):
   loc1 and loc2 are pairs of longitude and latitude
   >>> compute_distance((10,0), (20, 0))
   10.0
-  >>> int(compute_distance((10,0), (10, 45)))
+  >>> compute_distance((10,0), (10, 45))
   45.0
   >>> int(compute_distance((-78, -12), (-10.25, 52)))
   86
@@ -297,6 +297,16 @@ def compute_azimuth(loc1, loc2):
   """
   Angle in degrees measured clockwise from north starting at
   loc1 towards loc2. loc1 and loc2 are (longitude, latitude) in degrees.
+
+  See https://en.wikipedia.org/wiki/Great-circle_navigation.
+
+  However, we want north = 0 degrees,
+                   east = 90 degrees,
+                   south = 180 degrees, and
+                   west = 270 degrees.
+
+  Return an angle in 0 to 360 degrees.
+  
   >>> int(compute_azimuth((10,0), (20, 0)))
   90
   >>> int(compute_azimuth((20,0), (10, 0)))
@@ -307,23 +317,23 @@ def compute_azimuth(loc1, loc2):
   180.0
   >>> int(compute_azimuth((133.9, -23.665), (132.6, -.83)))
   356
-  """  
+  """
   lng1, lat1 = np.radians(loc1[0]), np.radians(loc1[1])
   lng2, lat2 = np.radians(loc2[0]), np.radians(loc2[1])
-
+  
   delta_lon = lng2 - lng1;
   
-  y = np.sin(delta_lon) * np.cos(lat2)
+  y = np.sin(delta_lon)
   
-  x = np.cos(lat1) * np.sin(lat2) - np.sin(lat1)*np.cos(lat2)*np.cos(delta_lon);
+  x = np.cos(lat1) * np.tan(lat2) - np.sin(lat1)*np.cos(delta_lon);
   
   azi = np.degrees(np.arctan2(y, x))
-  
+
   # azi is now in range -180/180
   # the following trick brings it in the 0 - 360 range
 
   return (azi + 360) % 360
-
+  
 def invert_dist_azimuth(loc1, dist, azi):
   """
   Return the location loc2=(longitude, latitude) such that
@@ -332,7 +342,8 @@ def invert_dist_azimuth(loc1, dist, azi):
   Or, in other words if we move along the great-circle from 'loc1' along the
   azimuth 'azi' for a distance of 'dist' degrees then we will reach loc2.
 
-  >>> map(int, util.invert_dist_azimuth((10, 0), 10.049369393181079, 95.740074136412659))
+  >>> map(int, invert_dist_azimuth((10, 0), 10.049369393181079,
+  ... 95.740074136412659))
   [20, 0]
 
   """
@@ -418,3 +429,8 @@ def mvar_norm_sample(mu, Sigma):
   
   return mu + np.dot(root, z)
   
+# if this file is run stand alone it tests the doc strings
+
+if __name__ == "__main__":
+  import doctest
+  doctest.testmod()

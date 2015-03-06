@@ -17,21 +17,25 @@ util.py       -- some geophysical utility functions
 solve.py      -- a sample solver that learns the physics and solves the episodes
 evaluate.py   -- evaluates a solution versus a reference
 mwmatching.py -- utility script for max-weight max cardinality matching
-physics.data  -- physics for the training and test episodes
-training.data -- 10K episodes for training
-test.data     -- another 10K episodes for testing
-test.blind    -- the test data with the event-to-detection mapping omitted 
-test.solution -- the sample solution on the test data
+
+short_data/ or large_data/
+                  -- data directory where the following files
+                     need to be downloaded
+ physics.data     -- physics for the training and test episodes
+ training.data    -- 10K episodes for training
+ test.data        -- another 10K episodes for testing
+ test.blind       -- the test data with the event-to-detection mapping omitted
+ test.solution    -- a sample solution on the test data (not available yet)
 
 Overview
 ========
 
-The model is completely described in ```description.tex``` and this should be
-translated in the Probabilistic Programming Language of your
-choosing. The unlabeled data in ```test.blind``` (and optionally the labeled
-data in ```training.data```) comprises the observations to the model. The
-query of interest is the seismic bulletin for each of the observed
-episodes.
+The model is completely described in ```description.tex``` and this
+should be translated in the Probabilistic Programming Language of your
+choosing. The unlabeled test data in ```test.blind``` and the labeled
+training data in ```training.data``` comprises the observations to the
+model. The query of interest is the seismic bulletin for each of the
+observed episodes in the test data.
 
 Once all the bulletins have been produced, the script ```evaluate.py```
 can be used to produce the reports on the accuracy versus the reference
@@ -43,7 +47,7 @@ for convenience. These files shouldn't normally be used. However, if you
 want to check the performance of your model on more than just the
 provided data you may generate more as needed. The sample solver is
 based loosely on the published greedy algorithm, and may be used as a
-competitive baseline.
+very simple baseline.
 
 Authors
 =======
