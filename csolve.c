@@ -6,7 +6,6 @@
 */
 #include <Python.h>
 #include <assert.h>
-#include <gsl/gsl_randist.h>
 
 #define VERBOSE
 // #define VERYVERBOSE
