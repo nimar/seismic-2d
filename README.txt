@@ -8,6 +8,9 @@ Analysis. Nimar S. Arora, Stuart Russell, Erik Sudderth. Bulletin of the
 Seismological Society of America (BSSA) April 2013, vol. 103 no. 2A
 pp709-729.
 
+Please cite the above paper in scientific research using this model or
+data.
+
 Files
 =====
 
@@ -54,16 +57,26 @@ provided data you may generate more as needed. The sample solver is
 based loosely on the published greedy algorithm, and may be used as a
 very simple baseline.
 
-The sample solver first tries to run the C-based solver and if that is
-not found it attempts the python version. In order to build the C-based
-solver the following command must be executed:
+The sample solver first tries to run the C-based solver, and if that is
+not found it attempts the python version. Both versions of the solver
+are identical except that the C one is a lot faster. Note that the
+output of the solvers is already included with the provided data, so it
+is only necessary to run the solver for additional data that you might
+generate.
+
+Compilation Instructions For C-Based Solver
+===========================================
+After building the C-based solver please run the script ```solve.py```
+as usual, and it will automatically use the newly built extension ```csolve```.
+
+In order to build the C-based solver the following command must be executed:
 
     python setup.py build_ext --inplace
 
 This will generate a file csolve.so (or csolve.pyd on
 Windows). Compiling Python C extensions on Windows usually involves
 additional steps. We strongly recommend using a 32-bit Python even on
-64-bit Windows, as the installation is a lot easier.
+64-bit Windows, as the steps are a lot easier.
 
 - Compiling on 32-bit Python using MinGW:
 
