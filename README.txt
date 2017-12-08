@@ -14,26 +14,25 @@ data.
 Files
 =====
 
-description.tex -- a description of the model
-generate.py   -- generates the physics of a 2-D world and some episodes
-util.py       -- some geophysical utility functions
-solve.py      -- a sample solver that learns the physics and solves the episodes
-pysolve.py    -- a python-based solver
-csolve.c      -- a C-based solver, identical to pysolve.py but much faster
-evaluate.py   -- evaluates a solution versus a reference
-mwmatching.py -- utility script for max-weight max cardinality matching
-
-short_data/ or large_data/
+* description.tex -- a description of the model
+* generate.py   -- generates the physics of a 2-D world and some episodes
+* util.py       -- some geophysical utility functions
+* solve.py      -- a sample solver that learns the physics and solves
+                   the episodes
+* pysolve.py    -- a python-based solver
+* csolve.c      -- a C-based solver, identical to pysolve.py but much faster
+* evaluate.py   -- evaluates a solution versus a reference
+* mwmatching.py -- utility script for max-weight max cardinality matching
+* short_data/ or large_data/
                   -- data directory where the following files
                      need to be downloaded
- physics.data     -- physics for the training and test episodes
- training.data    -- 100 (or 10K) episodes for training
- test.data        -- another 100 (or 10K) episodes for testing
- test.blind       -- the test data with the event-to-detection mapping omitted
- test.solution    -- a sample solution on the test data
+  * physics.data     -- physics for the training and test episodes
+  * training.data    -- 100 (or 10K) episodes for training
+  * test.data        -- another 100 (or 10K) episodes for testing
+  * test.blind       -- the test data with the event-to-detection
+                        mapping omitted
+  * test.solution    -- a sample solution on the test data
  
-The data files needed for the PPAML CP4 challenge problem are located here:
-http://ppaml.kitware.com/midas/item/4543 
 
 Overview
 ========
@@ -108,5 +107,5 @@ additional steps. We strongly recommend using a 32-bit Python even on
 
 Authors
 =======
-Nimar S. Arora, Bayesian Logic Inc., nimar.arora@gmail.com
-Stuart Russell, Deptt. of Computer Science, Berkeley.
+* Nimar S. Arora, Bayesian Logic Inc., nimar.arora@gmail.com
+* Stuart Russell, Deptt. of Computer Science, Berkeley.

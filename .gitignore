@@ -1,7 +1,6 @@
 build/
 *.so
-large_data/
-short_data/
+*_data/
 NOTES.txt
 *.pdf
 *.bbl
