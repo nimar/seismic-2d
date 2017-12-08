@@ -32,14 +32,18 @@ Overview
 The simplified model is completely described in [```description.tex```](https://bitbucket.org/nimar/seismic-2d/downloads/description.pdf) and this should be translated in the Probabilistic Programming Language of your choosing. Your model can be tested on the included data files in the *Downloads* section of this repository. The unlabeled test data in ```test.blind``` and the labeled training data in ```training.data``` comprises the observations to the model. The query of interest is the seismic bulletin for each of the observed episodes in the test data.
 
 Once all the bulletins have been produced, the script ```evaluate.py``` can be used to produce the reports on the accuracy versus the reference script ```test.data```. One can also compare the results versus the baseline in ```test.solution```. For example to check the accuracy of the sample solution:
-```
+
     $> python evaluate.py short_data/test.data short_data/test.solution 
+
     188 matchable events, 243 guess events, and 140 matched
+
     Precision 57.6 % , Recall 74.5 % , F1 65.0
+
     Time Errors mean 8.4 std 8.0
+
     Dist Errors mean 1.6 std 1.3
+
     Mag Errors mean 0.3 std 0.2
-```
 
 The files ```generate.py``` and ```solve.py``` have only been provided for convenience. These files shouldn't normally be used. However, if you want to check the performance of your model on more than just the provided data you may generate more as needed. The sample solver is based loosely on the published greedy algorithm, and may be used as a very simple baseline.
 
