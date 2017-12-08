@@ -2,11 +2,10 @@
 """
 Solves the seismic-2d episodes using a very simple algorithm.
 
-./solve.py data/physics.data data/test.blind data/test.solution
+./solve.py data/training.data data/test.blind data/test.solution
 
-Note: this version of the solution reads the underlying physics, which
-is, in fact, cheating. A future version will learn the physics directly
-from training data.
+This script first learns an approximation of the physics, and then uses it to
+associate arrivals to candidate events.
 
 Author: Nimar Arora (feel free to modify, use, or redistribute)
 """
@@ -22,6 +21,7 @@ from numpy import array, sqrt, log, exp, pi, arcsin, degrees, linspace, seterr,\
 seterr(all='raise')
 
 from util import *
+from generate import sample_physics
 
 try:
   from csolve import *
@@ -33,21 +33,24 @@ except ImportError:
 
 def main():
   if len(sys.argv) != 4:
-    print("Usage: solve.py physics.data test.blind test.solution",
+    print("Usage: solve.py training.data test.blind test.solution",
           file = sys.stderr)
     sys.exit(1)
-
-  phys_file_name, blind_file_name, solution_file_name = sys.argv[1:]
+    
+  train_file_name, blind_file_name, solution_file_name = sys.argv[1:]
   
-  physics = read_namedtuple("Physics", phys_file_name)
+  traindata = read_episodes(train_file_name)
   
   testdata = read_episodes(blind_file_name)
 
-  # we will write out each episode as we solve it so that it can
-  # be concurrently analyzed
+  physics = learn_physics(traindata)
+  
+  # We will write out each episode as we solve it, so that it can
+  # be concurrently analyzed.
   fp = open(solution_file_name, "w")
   
   print("Episodes:", file=fp, end="\n\n")
+  fp.flush()
   
   for episode in testdata:
     
@@ -58,6 +61,28 @@ def main():
     fp.flush()
     
   fp.close()
+
+def learn_physics(traindata):
+  # Sample a physics object to get the values for the constants. All the other
+  # attributes of this object will be learned.
+  physics = sample_physics()
+
+  # learn the event rate
+  avgevents = sum(len(epi.events) for epi in traindata) / len(traindata)
+  
+  lambda_e = avgevents / (4 * pi * physics.R**2 * physics.T)
+
+  # learn the detection probability coefficients
+
+  physics = physics._replace(lambda_e = lambda_e)
+
+  for field in physics._fields:
+    print("{0} = {1}".format(field, getattr(physics, field)))
+
+  import sys
+  sys.exit(1)
+
+  return physics
 
 if __name__ == "__main__":
   try:
