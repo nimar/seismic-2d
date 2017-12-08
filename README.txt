@@ -56,30 +56,25 @@ Compilation Instructions For C-Based Solver
 After building the C-based solver please run the script ```solve.py``` as usual, and it will automatically use the newly built extension ```csolve```.
 
 In order to build the C-based solver the following command must be executed:
-
-    python setup.py build_ext --inplace
+```python setup.py build_ext --inplace```
 This will generate a file csolve.so (or csolve.pyd on Windows). Compiling Python C extensions on Windows usually involves additional steps. We strongly recommend using a 32-bit Python even on 64-bit Windows, as the steps are a lot easier.
 
 * Compiling on 32-bit Python using MinGW:
 
   * Install MinGW
   * Compile using the --compiler flag:
-  
-        python setup.py build_ext --inplace --compiler=mingw32
+    ```python setup.py build_ext --inplace --compiler=mingw32```
 
 * Compiling on 64-bit Python:
 
   * [Install Visual Studio 10.0 Express](http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express)
   * [Install Microsoft Windows SDK for Windows 7 and .NET Framework 4](http://www.microsoft.com/en-us/download/details.aspx?id=8279)
-  * Create the following file:
-  
-        ```C:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\bin\amd64\vcvars64.bat```
-    with the single-line content:
-    
-        ```CALL "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64```
+  * Create the following file:  
+    ```C:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\bin\amd64\vcvars64.bat```
+    with the single-line content:   
+    ```CALL "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64```
   * Compile as usual
-  
-        ```python setup.py build_ext --inplace```
+    ```python setup.py build_ext --inplace```
 Authors
 =======
 * Nimar S. Arora, Bayesian Logic Inc., nimar.arora@gmail.com
