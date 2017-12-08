@@ -77,33 +77,21 @@ Windows). Compiling Python C extensions on Windows usually involves
 additional steps. We strongly recommend using a 32-bit Python even on
 64-bit Windows, as the steps are a lot easier.
 
-- Compiling on 32-bit Python using MinGW:
-
-    o.  Install MinGW
-
-    o.  Compile using the --compiler flag:
-
+* Compiling on 32-bit Python using MinGW:
+  * Install MinGW
+  * Compile using the --compiler flag:
         python setup.py build_ext --inplace --compiler=mingw32
-    
-- Compiling on 64-bit Python:
-
-    o. Install Visual Studio 10.0 Express:
-        http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express
-
-    o. Install Microsoft Windows SDK for Windows 7 and .NET Framework 4 
-        http://www.microsoft.com/en-us/download/details.aspx?id=8279
- 
-    o. Create the following file:
-    
-  C:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\bin\amd64\vcvars64.bat
-
-       with the single-line content:
-       
-  CALL "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
-
-    o. Compile as usual
-
-        python setup.py build_ext --inplace
+* Compiling on 64-bit Python:
+  * Install Visual Studio 10.0 Express:
+    http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express
+  * Install Microsoft Windows SDK for Windows 7 and .NET Framework 4:
+    http://www.microsoft.com/en-us/download/details.aspx?id=8279
+  * Create the following file:
+      C:\Program Files (x86)\Microsoft Visual Studio 10.0\vc\bin\amd64\vcvars64.bat
+    with the single-line content:
+      CALL "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
+  * Compile as usual
+      python setup.py build_ext --inplace
 
 Authors
 =======
