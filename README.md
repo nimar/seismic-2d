@@ -1,6 +1,7 @@
 Seismic-2d
 ==========
-This is a simplification of a model originally used for global-scale seismology. The full model can be read here
+
+This is a simplification of a model originally used for global-scale seismology. The full model can be read here:
 
 **NET-VISA: Network Processing Vertically Integrated Seismic Analysis. Nimar S. Arora, Stuart Russell, Erik Sudderth. Bulletin of the Seismological Society of America (BSSA) April 2013, vol. 103 no. 2A pp709-729.**
 
